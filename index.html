@@ -1,13 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
-    <title>Belajar GitHub</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Belajar GitHub Interaktif</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            text-align: center;
+            padding: 50px;
+            transition: background-color 0.6s ease;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            font-size: 40px;
+            color: #333;
+            transition: color 0.4s ease;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff5f6d, #ffc371);
+            border: none;
+            padding: 15px 30px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Halo Dunia! 🎉</h1>
-    <p>Ini percobaan pertama aku upload ke GitHub 😄</p>
+    <h1>Halo Dunia! 🌍</h1>
+    <p>Klik tombol di bawah untuk ubah warna background 🎨</p>
+    <button onclick="ubahWarna()">Ubah Warna!</button>
+
+    <footer>Belajar GitHub Interaktif ✨ | by zafirahr26-ship-it</footer>
+
+    <script>
+        function ubahWarna() {
+            const warnaAcak = `hsl(${Math.random() * 360}, 80%, 70%)`;
+            document.body.style.backgroundColor = warnaAcak;
+            document.querySelector("h1").style.color = "#fff";
+        }
+    </script>
 </body>
 
 </html>
