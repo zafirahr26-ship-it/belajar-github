@@ -2,9 +2,9 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Belajar Interaktif - Versi 3</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Belajar Interaktif – Versi 4</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,13 +13,13 @@
 
         body {
             margin: 0;
-            background: linear-gradient(135deg, #b2fefa, #0ed2f7);
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
             color: #222;
             transition: background 0.5s, color 0.5s;
         }
 
         body.dark {
-            background: linear-gradient(135deg, #222, #000);
+            background: #222;
             color: #f1f1f1;
         }
 
@@ -129,14 +129,16 @@
             transform: scale(1.05);
         }
 
-        .materi-list {
+        .materi-list,
+        .kelas-list {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
         }
 
-        .materi-card {
+        .materi-card,
+        .kelas-card {
             background: white;
             color: black;
             width: 100%;
@@ -148,7 +150,8 @@
             transition: transform 0.3s, background 0.5s;
         }
 
-        .materi-card:hover {
+        .materi-card:hover,
+        .kelas-card:hover {
             transform: translateY(-5px);
             background: #caf0f8;
         }
@@ -183,18 +186,28 @@
             color: #444;
             margin-top: 50px;
         }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body>
-    <header>📚 Aplikasi Belajar Interaktif 3.0</header>
+    <header>📚 Aplikasi Belajar Interaktif 4.0</header>
     <button class="toggle-mode" onclick="toggleMode()">🌙</button>
-
     <nav>
         <button class="active" onclick="pindah('login', this)">🔑 Login</button>
         <button onclick="pindah('dashboard', this)">🏠 Dashboard</button>
-        <button onclick="pindah('materi', this)">📖 Materi</button>
-        <button onclick="pindah('kuis', this)">🧠 Kuis</button>
+        <button onclick="pindah('kelas', this)">📂 Pilih Kelas</button>
         <button onclick="pindah('tentang', this)">ℹ️ Tentang</button>
     </nav>
 
@@ -203,7 +216,7 @@
         <div class="login-box">
             <h2>Masuk ke Akunmu</h2>
             <input type="text" id="nama" placeholder="Nama pengguna" />
-            <input type="password" id="sandi" placeholder="Kata sandi" />
+            <input type="password" id="sandi" placeholder="Kata sandi (bebas)" />
             <button class="btn" onclick="login()">Masuk</button>
         </div>
     </div>
@@ -211,118 +224,156 @@
     <!-- DASHBOARD -->
     <div id="dashboard" class="page">
         <h1>Selamat datang, <span id="namaUser">Pelajar</span>! 👋</h1>
-        <p>Pilih menu di atas untuk mulai belajar interaktif.</p>
-        <p>🎯 Skor saat ini: <span id="skorUser">0</span></p>
-    </div>
-
-    <!-- MATERI -->
-    <div id="materi" class="page">
-        <h1>Materi Pembelajaran 📘</h1>
-        <div class="materi-list">
-            <div class="materi-card" onclick="showMateri(1)">📐 Bab 1: Matematika Dasar</div>
-            <div class="materi-card" onclick="showMateri(2)">🔤 Bab 2: Bahasa Indonesia</div>
-            <div class="materi-card" onclick="showMateri(3)">⚛️ Bab 3: IPA</div>
+        <p>Skor kamu saat ini: <span id="skorUser">0</span></p>
+        <div class="kelas-list">
+            <div class="kelas-card" onclick="selectKelas(10)">Kelas 10</div>
+            <div class="kelas-card" onclick="selectKelas(11)">Kelas 11</div>
         </div>
-
-        <div id="materiDetail" class="materi-detail"></div>
     </div>
 
-    <!-- KUIS -->
-    <div id="kuis" class="page">
-        <h1>Kuis Interaktif 🧠</h1>
+    <!-- KELAS (pilih kelas lalu materi & kuis) -->
+    <div id="kelas" class="page">
+        <h1>Pilih Kelas</h1>
+        <div class="kelas-list">
+            <div class="kelas-card" onclick="setKelas(10)">Kelas 10 – Materi & Kuis</div>
+            <div class="kelas-card" onclick="setKelas(11)">Kelas 11 – Materi & Kuis</div>
+        </div>
+    </div>
+
+    <!-- MATERI & KUIS (dalam satu page dinamis) -->
+    <div id="kelasDetail" class="page">
+        <h1 id="judulKelas">Materi Kelas ?</h1>
+        <h2>Materi</h2>
+        <div class="materi-list" id="materiList"></div>
+        <h2>Kuis</h2>
         <div id="soal-container"></div>
-        <button class="btn" onclick="mulaiKuis()">Mulai Kuis</button>
+        <button class="btn" id="btnMulaiKuis" onclick="mulaiKuis()">Mulai Kuis</button>
+        <button class="btn" onclick="pindah('dashboard', document.querySelectorAll('nav button')[1])">⬅️ Kembali ke
+            Dashboard</button>
     </div>
 
     <!-- TENTANG -->
     <div id="tentang" class="page">
         <h1>Tentang Aplikasi</h1>
-        <p>Aplikasi ini adalah versi lanjutan dari proyek belajar GitHub kamu! Sekarang sudah punya dark mode, kuis
-            dinamis, dan tampilan seperti aplikasi profesional 🎉</p>
+        <p>Versi 4.0 dari aplikasi belajar interaktif dengan fitur klasifikasi kelas, materi & kuis sesuai kelas 10 dan
+            11.</p>
+        <p>Dibuat oleh <b>Paripir</b>. Gunakan dengan semangat belajar!</p>
     </div>
 
-    <footer>© 2025 Aplikasi Belajar Interaktif 3.0 | Dibuat dengan 💙 oleh zafirahr26-ship-it</footer>
-
-    <audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-    <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-    <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+    <footer>© 2025 Aplikasi Belajar Interaktif 4.0 – Semua hak milik Paripir</footer>
 
     <script>
-        function playSound(id) {
-            document.getElementById(id).play();
-        }
+        const clickSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+        const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+        const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/boing.ogg');
 
-        function pindah(id, tombol) {
-            playSound('clickSound');
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-            tombol.classList.add('active');
-        }
+        let skor = 0;
+        let kelasAktif = null;
+        let soalArr = [];
+        let indeksSoal = 0;
 
-        function login() {
-            const nama = document.getElementById('nama').value;
-            if (!nama) return alert('Isi nama dulu ya!');
-            document.getElementById('namaUser').innerText = nama;
-            pindah('dashboard', document.querySelectorAll('nav button')[1]);
+        const materiData = {
+            10: [
+                { id: 1, judul: "Bab 1: Matematika Dasar (Kelas 10)", isi: "Operasi bilangan, pecahan, dan aljabar dasar." },
+                { id: 2, judul: "Bab 2: Bahasa Indonesia (Kelas 10)", isi: "Teks narasi, deskripsi, eksposisi, dan resensi." }
+            ],
+            11: [
+                { id: 1, judul: "Bab 1: Geometri dan Trigonometri (Kelas 11)", isi: "Sudut, garis, bangun ruang, fungsi trigonometri." },
+                { id: 2, judul: "Bab 2: IPA – Biologi Sel dan Genetika (Kelas 11)", isi: "Struktur sel, pembelahan sel, pewarisan gen." }
+            ]
+        };
+
+        const kuisData = {
+            10: [
+                { tanya: "2 + 3 × 4 = ?", opsi: ["14", "20", "12"], benar: 0 },
+                { tanya: "Apa jenis teks yang menceritakan pengalaman pribadi?", opsi: ["Deskripsi", "Narasi", "Eksposisi"], benar: 1 }
+            ],
+            11: [
+                { tanya: "Sin 30° = ?", opsi: ["½", "√2/2", "√3/2"], benar: 0 },
+                { tanya: "Organisme yang memiliki inti sel disebut…?", opsi: ["Bakteri", "Protista", "Eukariota"], benar: 2 }
+            ]
+        };
+
+        function play(sound) {
+            sound.play();
         }
 
         function toggleMode() {
             document.body.classList.toggle('dark');
-            const btn = document.querySelector('.toggle-mode');
-            btn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-            playSound('clickSound');
+            document.querySelector('.toggle-mode').textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+            play(clickSound);
         }
 
-        function showMateri(nomor) {
-            playSound('clickSound');
-            const materi = [
-                "📐 <b>Bab 1: Matematika Dasar</b><br>Pelajari operasi bilangan, pecahan, dan logika matematika sederhana.",
-                "🔤 <b>Bab 2: Bahasa Indonesia</b><br>Pahami teks deskripsi, narasi, dan eksposisi.",
-                "⚛️ <b>Bab 3: IPA</b><br>Kenali energi, gaya, serta sifat benda dan makhluk hidup."
-            ];
-            document.getElementById('materiDetail').style.display = 'block';
-            document.getElementById('materiDetail').innerHTML = materi[nomor - 1];
+        function pindah(id, tombol) {
+            play(clickSound);
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            if (tombol) tombol.classList.add('active');
         }
 
-        const kuis = [
-            { tanya: "Apa ibu kota Indonesia?", opsi: ["Bandung", "Jakarta", "Surabaya"], benar: 1 },
-            { tanya: "2 + 3 = ?", opsi: ["4", "5", "6"], benar: 1 },
-            { tanya: "Hewan yang bisa terbang adalah?", opsi: ["Ayam", "Burung", "Kucing"], benar: 1 }
-        ];
+        function login() {
+            const nama = document.getElementById('nama').value.trim();
+            if (!nama) { alert("Isi nama dulu ya!"); return; }
+            document.getElementById('namaUser').innerText = nama;
+            pindah('dashboard', document.querySelectorAll('nav button')[1]);
+        }
 
-        let indeks = 0, skor = 0;
+        function selectKelas(k) {
+            play(clickSound);
+            setKelas(k);
+            pindah('kelasDetail', document.querySelectorAll('nav button')[2]);
+        }
+
+        function setKelas(k) {
+            kelasAktif = k;
+            document.getElementById('judulKelas').innerText = `Materi & Kuis – Kelas ${k}`;
+            const list = document.getElementById('materiList');
+            list.innerHTML = "";
+            materiData[k].forEach(m => {
+                const div = document.createElement('div');
+                div.className = "materi-card";
+                div.innerHTML = m.judul;
+                div.onclick = () => {
+                    alert(m.isi);
+                };
+                list.appendChild(div);
+            });
+            // set kuis
+            soalArr = [...kuisData[k]];
+            indeksSoal = 0;
+            document.getElementById('soal-container').innerHTML = "";
+        }
 
         function mulaiKuis() {
-            skor = 0; indeks = 0;
+            if (kelasAktif === null) { alert("Pilih kelas dulu ya!"); return; }
+            skor = 0;
+            indeksSoal = 0;
             tampilSoal();
         }
 
         function tampilSoal() {
-            const wadah = document.getElementById('soal-container');
-            if (indeks >= kuis.length) {
-                wadah.innerHTML = `<h3>Kuis selesai! 🎉<br>Skor kamu: ${skor}</h3>`;
+            const container = document.getElementById('soal-container');
+            if (indeksSoal >= soalArr.length) {
+                container.innerHTML = `<h3>Kuis selesai! 🎉 Skor: ${skor}</h3>`;
                 document.getElementById('skorUser').innerText = skor;
                 return;
             }
-            const s = kuis[indeks];
-            wadah.innerHTML = `
-        <h3>${s.tanya}</h3>
-        ${s.opsi.map((o, i) => `<div class='quiz-option' onclick='jawab(${i})'>${o}</div>`).join("")}
-      `;
+            const s = soalArr[indeksSoal];
+            container.innerHTML = `<h3>${s.tanya}</h3>` + s.opsi.map((o, i) =>
+                `<div class='quiz-option' onclick='jawab(${i})'>${o}</div>`
+            ).join("");
         }
 
-        function jawab(pilihan) {
-            const benar = kuis[indeks].benar;
-            if (pilihan === benar) {
-                skor += 10;
-                playSound('correctSound');
-            } else {
-                playSound('wrongSound');
-            }
-            indeks++;
+        function jawab(i) {
+            const s = soalArr[indeksSoal];
+            if (i === s.benar) {
+                skor += 10; play(correctSound);
+            } else { play(wrongSound); }
+            indeksSoal++;
             setTimeout(tampilSoal, 700);
         }
+
     </script>
 </body>
 
